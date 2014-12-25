@@ -72,6 +72,46 @@ int threadpool_add(threadpool_t *pool, void (*routine)(void *),
                    void *arg, int flags);
 
 /**
+* @function threadpool_map
+* @brief call routine given number of times
+* @param pool     Thread pool to which add the task.
+* @param size     number of times to call the function.
+* @param function Pointer to the function that will perform the task.
+* @param argument Argument to be passed to the function.
+* @param flags    Unused parameter.
+* @return 0 if all goes well, negative values in case of error (@see
+* threadpool_error_t for codes).
+*/
+int threadpool_map(threadpool_t *pool, int size, void(*routine)(int n, void *),
+	void *arg, int flags);
+
+
+/**
+* @struct threadpool_reduce_t
+* @brief arguments for threadpool_reduce
+*/
+
+typedef struct
+{
+	void(*reduce)(void *self, void *left, void *right);
+	void *(*reduce_alloc_neutral)(void *self);
+	void(*reduce_free)(void *self, void *node);
+	void(*reduce_finish)(void *self, void *node);
+
+	int object_size;
+	void *begin;
+	void *end;
+	void *self;
+} threadpool_reduce_t;
+
+/**
+* @function threadpool_reduce
+* @brief parallel reduce
+*/
+
+int threadpool_reduce(threadpool_t *pool, threadpool_reduce_t *reduce);
+
+/**
  * @function threadpool_destroy
  * @brief Stops and destroys a thread pool.
  * @param pool  Thread pool to destroy.

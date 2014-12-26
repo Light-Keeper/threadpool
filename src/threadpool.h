@@ -25,6 +25,11 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+ /**
+    Map-Reduce implementation
+    @author Vadim Yanushkevich
+    @date 26.12.2014
+*/
 
 #ifndef _THREADPOOL_H_
 #define _THREADPOOL_H_
@@ -73,7 +78,7 @@ int threadpool_add(threadpool_t *pool, void (*routine)(void *),
 
 /**
 * @function threadpool_map
-* @brief call routine given number of times
+* @brief call routine given number of times, blocks until all is done.
 * @param pool     Thread pool to which add the task.
 * @param size     number of times to call the function.
 * @param function Pointer to the function that will perform the task.
@@ -89,6 +94,17 @@ int threadpool_map(threadpool_t *pool, int size, void(*routine)(int n, void *),
 /**
 * @struct threadpool_reduce_t
 * @brief arguments for threadpool_reduce
+* @param reduce         perform reduce on 2 operands. save result in left
+* @param reduce_alloc_neutral allocate object which is neutral for your reduce
+* operation
+* @param reduce_free free object allocated with reduce_alloc_neutral.
+* For every call to reduce_alloc_neutral coresponding reduce_free will also 
+* be called.
+* @param object_size size of objects to reduce on them. used to increment and 
+* decrement pointers.
+* @param begin first object for reduce
+* @param end object after the last
+* @param self user-specific data 
 */
 
 typedef struct
@@ -106,7 +122,10 @@ typedef struct
 
 /**
 * @function threadpool_reduce
-* @brief parallel reduce
+* @brief parallel blocking reduce
+* @param pool  Thread pool to which add the task.
+* @param reduce  Filled threadpool_reduce_t struct.
+* @return error code
 */
 
 int threadpool_reduce(threadpool_t *pool, threadpool_reduce_t *reduce);
